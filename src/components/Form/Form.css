@@ -1,0 +1,36 @@
+form {
+  padding: 7%;
+  border-radius: 5px;
+}
+
+fieldset {
+    border-radius: 5px;
+    background-color: rgba(228, 255, 223, 0.3);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset,
+    0 0 8px rgba(126, 239, 104, 0.6);
+}
+
+.btn-success {
+  margin-top: 5%;
+}
+
+input[type="text"]:focus,
+input[type="tel"]:focus {
+  border-color: rgba(126, 239, 104, 0.8);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset,
+    0 0 8px rgba(126, 239, 104, 0.6);
+  outline: 0 none;
+}
+
+.title {
+  font-size: 25px;
+  font-weight: 700;
+  text-transform: capitalize;
+  margin: 0 0 15px;
+}
+
+label {
+    font-weight: bold;
+    font-size: 12px !important;
+    text-decoration: underline;
+}
