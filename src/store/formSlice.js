@@ -45,9 +45,15 @@ export const { setValue, setFieldStatus, setRooms, setFormStatus, reset } =
   formSlice.actions;
 export const selectIdInstance = (state) =>
   state.form.createChatForm.idInstance.value;
+  export const selectIdInstanceStatus = (state) =>
+  state.form.createChatForm.idInstance.status;
 export const selectApiTokenInstance = (state) =>
   state.form.createChatForm.apiTokenInstance.value;
+  export const selectApiTokenInstanceStatus = (state) =>
+  state.form.createChatForm.apiTokenInstance.status;
 export const selectTel = (state) => state.form.createChatForm.tel.value;
-
+export const selectTelStatus = (state) =>
+  state.form.createChatForm.tel.status;
+export const selectFormStatus = (state) => state.form.createChatForm.status;
 
 export default formSlice.reducer;
