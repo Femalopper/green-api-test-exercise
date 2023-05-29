@@ -1,18 +1,23 @@
 import "./Form.css";
 import {
+  reset,
   selectApiTokenInstance,
   selectApiTokenInstanceStatus,
+  selectError,
   selectFormStatus,
   selectIdInstance,
   selectIdInstanceStatus,
   selectTel,
   selectTelStatus,
+  setError,
   setFieldStatus,
   setFormStatus,
   setValue,
 } from "../../store/formSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
+import { setChatId } from "../../store/chatSlice";
+import axios from "axios";
 
 const Form = () => {
   const idInstance = useSelector(selectIdInstance);
@@ -22,6 +27,7 @@ const Form = () => {
   const tel = useSelector(selectTel);
   const telInstanceStatus = useSelector(selectTelStatus);
   const formStatus = useSelector(selectFormStatus);
+  const err = useSelector(selectError);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -31,28 +37,82 @@ const Form = () => {
       telInstanceStatus === "filled"
     ) {
       dispatch(setFormStatus("filled"));
+    } else {
+      dispatch(setFormStatus("unfilled"));
     }
   }, [idInstanceStatus, apiTokenInstanceStatus, telInstanceStatus, dispatch]);
 
   const changeIdInstance = (val) => {
     dispatch(setValue([val, "idInstance"]));
-    dispatch(setFieldStatus(["filled", "idInstance"]));
+    if (val) {
+      dispatch(setFieldStatus(["filled", "idInstance"]));
+    } else {
+      dispatch(setFieldStatus(["unfilled", "idInstance"]));
+    }
   };
 
   const changeApiTokenInstance = (val) => {
     dispatch(setValue([val, "apiTokenInstance"]));
-    dispatch(setFieldStatus(["filled", "apiTokenInstance"]));
+    if (val) {
+      dispatch(setFieldStatus(["filled", "apiTokenInstance"]));
+    } else {
+      dispatch(setFieldStatus(["unfilled", "apiTokenInstance"]));
+    }
   };
 
   const changeTel = (val) => {
     dispatch(setValue([val, "tel"]));
-    dispatch(setFieldStatus(["filled", "tel"]));
+    if (val) {
+      dispatch(setFieldStatus(["filled", "tel"]));
+    } else {
+      dispatch(setFieldStatus(["unfilled", "tel"]));
+    }
   };
 
   const isSubmitDisabled = () => formStatus === "unfilled";
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const regExp = /\d/g;
+    const validTel = tel.match(regExp).join("");
+    const chatId = `${validTel}@c.us`;
+
+    const headers = {
+      "Content-Type": "application/json",
+    };
+    axios
+      .get(
+        `https://api.green-api.com/waInstance${idInstance}/getStateInstance/${apiTokenInstance}`,
+        { headers }
+      )
+      .then((res) => console.log(res.data))
+      .then(() =>
+        axios.post(
+          `https://api.green-api.com/waInstance${idInstance}/checkWhatsapp/${apiTokenInstance}`,
+          JSON.stringify({ phoneNumber: validTel }),
+          { headers }
+        )
+      )
+      .then((res) => {
+        if (res.data.existsWhatsapp) {
+          console.log(res.data);
+        } else {
+          throw new Error("Данный номер не зарегистрирован в WhatsApp");
+        }
+      })
+      .then(() => {
+        dispatch(setChatId(chatId));
+        dispatch(reset());
+      })
+      .catch((e) => {
+        if (e.response && e.response.status === 400) {
+          dispatch(setError("Неверный формат номера"));
+        } else if (e.response && e.response.status === 401) {
+          dispatch(setError("Пользователь не авторизован"));
+        } else {
+          dispatch(setError(e.message));
+        }
+      });
   };
 
   return (
@@ -93,7 +153,7 @@ const Form = () => {
             Телефон:
           </label>
           <input
-            type="tel"
+            type="number"
             className="form-control"
             id="tel"
             placeholder="Введите телефон"
@@ -102,13 +162,18 @@ const Form = () => {
             required
           />
         </div>
-        <button
-          type="submit"
-          className="btn btn-success"
-          disabled={isSubmitDisabled()}
-        >
-          Создать чат
-        </button>
+        <div className="error-and-button">
+          <div className="error">{err}</div>
+          <div>
+          <button
+            type="submit"
+            className="btn btn-success"
+            disabled={isSubmitDisabled()}
+          >
+            Создать чат
+          </button>
+          </div>
+        </div>
       </fieldset>
     </form>
   );
