@@ -104,7 +104,7 @@ function Form() {
       })
       .catch((error) => {
         console.log(error);
-        if (error.response && e.response.status === 400) {
+        if (error.response && error.response.status === 400) {
           dispatch(setError(error.response.data.message));
         } else if (error.response && error.response.status === 401) {
           dispatch(setError('The user is unauthorized'));
