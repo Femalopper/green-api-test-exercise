@@ -4,9 +4,9 @@ form {
 }
 
 fieldset {
-    border-radius: 5px;
-    background-color: rgba(228, 255, 223, 0.3);
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset,
+  border-radius: 5px;
+  background-color: rgba(228, 255, 223, 0.3);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset,
     0 0 8px rgba(126, 239, 104, 0.6);
 }
 
@@ -30,31 +30,31 @@ input[type="number"]:focus {
 }
 
 label {
-    font-weight: bold;
-    font-size: 12px !important;
-    text-decoration: underline;
+  font-weight: bold;
+  font-size: 12px !important;
+  text-decoration: underline;
 }
 
 .error-and-button {
-    height: 80px;
+  height: 80px;
 }
 
 .error {
-    color: red;
-    font-size: 11px;
-    margin-top: 2px;
-    height: 20px;
+  color: red;
+  font-size: 11px;
+  margin-top: 2px;
+  height: 20px;
 }
 
 .hide {
-    display: none;
+  display: none;
 }
 
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
+  -webkit-appearance: none;
 }
 
-input[type='number'] {
+input[type="number"] {
   -moz-appearance: textfield;
 }
