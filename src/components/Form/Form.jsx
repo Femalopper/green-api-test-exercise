@@ -1,6 +1,5 @@
 import "./Form.css";
 import {
-  reset,
   selectApiTokenInstance,
   selectApiTokenInstanceStatus,
   selectError,
@@ -18,6 +17,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { setChatId } from "../../store/chatSlice";
 import axios from "axios";
+import classNames from "classnames";
 
 const Form = () => {
   const idInstance = useSelector(selectIdInstance);
@@ -97,18 +97,21 @@ const Form = () => {
         if (res.data.existsWhatsapp) {
           console.log(res.data);
         } else {
-          throw new Error("Данный номер не зарегистрирован в WhatsApp");
+          throw new Error("This number is not registered in WhatsApp");
         }
       })
       .then(() => {
         dispatch(setChatId(chatId));
-        dispatch(reset());
+        dispatch(setFormStatus("created"));
       })
       .catch((e) => {
+        console.log(e);
         if (e.response && e.response.status === 400) {
-          dispatch(setError("Неверный формат номера"));
+          dispatch(setError(e.response.data.message));
         } else if (e.response && e.response.status === 401) {
-          dispatch(setError("Пользователь не авторизован"));
+          dispatch(setError("The user is unauthorized"));
+        } else if (e.response && e.response.status === 466) {
+          dispatch(setError("Limit exhausted"));
         } else {
           dispatch(setError(e.message));
         }
@@ -116,7 +119,12 @@ const Form = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form
+      onSubmit={handleSubmit}
+      className={classNames({
+        hide: formStatus === "created",
+      })}
+    >
       <fieldset className="border px-4 pt-1 pb-4">
         <legend className="float-none w-auto title">Создать чат</legend>
         <div className="form-group">
@@ -165,13 +173,13 @@ const Form = () => {
         <div className="error-and-button">
           <div className="error">{err}</div>
           <div>
-          <button
-            type="submit"
-            className="btn btn-success"
-            disabled={isSubmitDisabled()}
-          >
-            Создать чат
-          </button>
+            <button
+              type="submit"
+              className="btn btn-success"
+              disabled={isSubmitDisabled()}
+            >
+              Создать чат
+            </button>
           </div>
         </div>
       </fieldset>
