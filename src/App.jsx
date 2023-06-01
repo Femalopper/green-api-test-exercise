@@ -1,6 +1,7 @@
-import "./App.css";
-import Form from "./components/Form/Form";
-import Chat from "./components/Chat/Chat";
+import React from 'react';
+import './App.css';
+import Form from './components/Form/Form';
+import Chat from './components/Chat/Chat';
 
 function App() {
   return (

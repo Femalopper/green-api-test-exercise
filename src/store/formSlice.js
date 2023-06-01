@@ -1,34 +1,32 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { current } from "@reduxjs/toolkit";
+import { createSlice, current } from '@reduxjs/toolkit';
 
 const initialState = {
   createChatForm: {
-    status: "unfilled",
+    status: 'unfilled',
     idInstance: {
-      value: "",
-      status: "unfilled",
+      value: '',
+      status: 'unfilled',
     },
     apiTokenInstance: {
-      value: "",
-      status: "unfilled",
+      value: '',
+      status: 'unfilled',
     },
     tel: {
-      value: "",
-      status: "unfilled",
+      value: '',
+      status: 'unfilled',
     },
-    error: "",
+    error: '',
   },
 };
 
 export const formSlice = createSlice({
-  name: "form",
+  name: 'form',
   initialState,
   reducers: {
     setValue: (state, data) => {
       const val = data.payload[0];
       const prop = data.payload[1];
       state.createChatForm[prop].value = val;
-      console.log(current(state));
     },
     setFieldStatus: (state, data) => {
       const status = data.payload[0];
@@ -37,10 +35,10 @@ export const formSlice = createSlice({
     },
     setFormStatus: (state, data) => {
       state.createChatForm.status = data.payload;
+      console.log(current(state));
     },
     setError: (state, data) => {
       state.createChatForm.error = data.payload;
-      console.log(current(state))
     },
     reset: () => initialState,
   },
@@ -54,14 +52,10 @@ export const {
   reset,
   setError,
 } = formSlice.actions;
-export const selectIdInstance = (state) =>
-  state.form.createChatForm.idInstance.value;
-export const selectIdInstanceStatus = (state) =>
-  state.form.createChatForm.idInstance.status;
-export const selectApiTokenInstance = (state) =>
-  state.form.createChatForm.apiTokenInstance.value;
-export const selectApiTokenInstanceStatus = (state) =>
-  state.form.createChatForm.apiTokenInstance.status;
+export const selectIdInstance = (state) => state.form.createChatForm.idInstance.value;
+export const selectIdInstanceStatus = (state) => state.form.createChatForm.idInstance.status;
+export const selectApiTokenInstance = (state) => state.form.createChatForm.apiTokenInstance.value;
+export const selectApiTokenInsStatus = (state) => state.form.createChatForm.apiTokenInstance.status;
 export const selectTel = (state) => state.form.createChatForm.tel.value;
 export const selectTelStatus = (state) => state.form.createChatForm.tel.status;
 export const selectFormStatus = (state) => state.form.createChatForm.status;

@@ -1,12 +1,9 @@
-import classNames from "classnames";
-import "./Chat.css";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  selectApiTokenInstance,
-  selectFormStatus,
-  selectIdInstance,
-} from "../../store/formSlice";
-import axios from "axios";
+import React, { useEffect, useRef } from 'react';
+import classNames from 'classnames';
+import './Chat.css';
+import { useDispatch, useSelector } from 'react-redux';
+import axios from 'axios';
+import { uniqueId } from 'lodash';
 import {
   selectChatId,
   selectChatStatus,
@@ -17,11 +14,14 @@ import {
   setCurrentMessage,
   setReceivedMessages,
   setSentMessages,
-} from "../../store/chatSlice";
-import { uniqueId } from "lodash";
-import { useEffect, useRef } from "react";
+} from '../../store/chatSlice';
+import {
+  selectApiTokenInstance,
+  selectFormStatus,
+  selectIdInstance,
+} from '../../store/formSlice';
 
-const Chat = () => {
+function Chat() {
   const idInstance = useSelector(selectIdInstance);
   const apiTokenInstance = useSelector(selectApiTokenInstance);
   const formStatus = useSelector(selectFormStatus);
@@ -36,17 +36,14 @@ const Chat = () => {
 
   const scrollToBottom = () => {
     if (lastMes.current) {
-      console.log(lastMes.current.offsetHeight);
-      chatBody.current.scrollTop =
-        chatBody.current.scrollHeight + lastMes.current.offsetHeight;
+      chatBody.current.scrollTop = chatBody.current.scrollHeight + lastMes.current.offsetHeight;
     }
   };
 
   useEffect(() => {
     const runLoop = () => {
-      console.log("run");
       const headers = {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       };
 
       try {
@@ -54,67 +51,64 @@ const Chat = () => {
         const recF = async () => {
           response = await axios.get(
             `https://api.green-api.com/waInstance${idInstance}/receiveNotification/${apiTokenInstance}`,
-            { headers }
+            { headers },
           );
-          console.log(response);
 
           let webhookBody;
 
           if (response.data) {
             webhookBody = response.data.body;
           }
-          console.log(response.data);
 
           if (
-            webhookBody &&
-            webhookBody.typeWebhook === "incomingMessageReceived"
+            webhookBody
+            && webhookBody.typeWebhook === 'incomingMessageReceived'
           ) {
-            console.log("incomingMessageReceived");
-            const receiptId = response.data.receiptId;
+            const { receiptId } = response.data;
             await axios.delete(
               `https://api.green-api.com/waInstance${idInstance}/deleteNotification/${apiTokenInstance}/${receiptId}`,
               { headers },
-              response.data.body.receiptId
+              response.data.body.receiptId,
             );
             dispatch(
               setReceivedMessages(
-                response.data.body.messageData.textMessageData.textMessage
-              )
+                response.data.body.messageData.textMessageData.textMessage,
+              ),
             );
           } else if (
-            webhookBody &&
-            webhookBody.typeWebhook === "outgoingAPIMessageReceived"
+            webhookBody
+            && webhookBody.typeWebhook === 'outgoingAPIMessageReceived'
           ) {
-            const receiptId = response.data.receiptId;
+            const { receiptId } = response.data;
             await axios.delete(
               `https://api.green-api.com/waInstance${idInstance}/deleteNotification/${apiTokenInstance}/${receiptId}`,
               { headers },
-              response.data.body.receiptId
+              response.data.body.receiptId,
             );
           } else if (
-            webhookBody &&
-            webhookBody.typeWebhook === "stateInstanceChanged"
+            webhookBody
+            && webhookBody.typeWebhook === 'stateInstanceChanged'
           ) {
-            console.log("stateInstanceChanged");
+            console.log('stateInstanceChanged');
             console.log(`stateInstance=${webhookBody.stateInstance}`);
           } else if (
-            webhookBody &&
-            webhookBody.typeWebhook === "outgoingMessageStatus"
+            webhookBody
+            && webhookBody.typeWebhook === 'outgoingMessageStatus'
           ) {
-            console.log("outgoingMessageStatus");
+            console.log('outgoingMessageStatus');
             console.log(`status=${webhookBody.status}`);
-          } else if (webhookBody && webhookBody.typeWebhook === "deviceInfo") {
-            console.log("deviceInfo");
+          } else if (webhookBody && webhookBody.typeWebhook === 'deviceInfo') {
+            console.log('deviceInfo');
             console.log(`status=${webhookBody.deviceData}`);
           }
           recF();
         };
         recF();
-      } catch (e) {
-        console.error(e);
+      } catch (err) {
+        console.log(err);
       }
     };
-    if (chatStatus === "active") {
+    if (chatStatus === 'active') {
       runLoop();
     }
   }, [chatStatus]);
@@ -122,32 +116,31 @@ const Chat = () => {
   useEffect(() => {
     scrollToBottom();
     if (sentMessages.length === 1) {
-      dispatch(setChatStatus("active"));
+      dispatch(setChatStatus('active'));
     }
     if (sentMessages.length > receivedMessages.length) {
       dispatch(setReceivedMessages(null));
     } else if (sentMessages.length < receivedMessages.length) {
-      console.log(sentMessages, "k");
-      console.log(receivedMessages, "l");
+      console.log(sentMessages, 'k');
+      console.log(receivedMessages, 'l');
       dispatch(setSentMessages(null));
     }
   }, [sentMessages, receivedMessages]);
 
-  const submitHandler = async (e) => {
-    e.preventDefault();
+  const submitHandler = async (event) => {
+    event.preventDefault();
     const headers = {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     };
 
     try {
       await axios.post(
         `https://api.green-api.com/waInstance${idInstance}/sendMessage/${apiTokenInstance}`,
         JSON.stringify({ chatId, message }, null, 4),
-        { headers }
+        { headers },
       );
       dispatch(setSentMessages(message));
-      dispatch(setCurrentMessage(""));
-      console.log(sentMessages, "sentm");
+      dispatch(setCurrentMessage(''));
     } catch (e) {
       console.log(e);
     }
@@ -160,10 +153,8 @@ const Chat = () => {
   const mapMessages = () => {
     let counter = 0;
     const messages = [];
-    console.log(receivedMessages);
-    console.log(sentMessages);
     while (counter < sentMessages.length) {
-      if (sentMessages[counter] !== null)
+      if (sentMessages[counter] !== null) {
         messages.push(
           <div
             className="w-wat-chat sent"
@@ -173,9 +164,9 @@ const Chat = () => {
             <div>
               <p>{sentMessages[counter]}</p>
             </div>
-          </div>
+          </div>,
         );
-      else if (receivedMessages[counter] !== null) {
+      } else if (receivedMessages[counter] !== null) {
         messages.push(
           <div
             className="w-wat-chat received"
@@ -185,7 +176,7 @@ const Chat = () => {
             <div>
               <p>{receivedMessages[counter]}</p>
             </div>
-          </div>
+          </div>,
         );
       } else {
         messages.push(null);
@@ -198,14 +189,14 @@ const Chat = () => {
   return (
     <form
       onSubmit={submitHandler}
-      className={classNames("chat-container", {
-        hide: formStatus !== "created",
+      className={classNames('chat-container', {
+        hide: formStatus !== 'created',
       })}
     >
       <div className="user">
-        <div></div>
-        <div></div>
-        <div></div>
+        <div />
+        <div />
+        <div />
       </div>
       <div className="chat" ref={chatBody}>
         {mapMessages()}
@@ -225,6 +216,6 @@ const Chat = () => {
       </div>
     </form>
   );
-};
+}
 
 export default Chat;

@@ -1,7 +1,12 @@
-import "./Form.css";
+import React, { useEffect } from 'react';
+import './Form.css';
+import { useDispatch, useSelector } from 'react-redux';
+import axios from 'axios';
+import classNames from 'classnames';
+import { setChatId } from '../../store/chatSlice';
 import {
   selectApiTokenInstance,
-  selectApiTokenInstanceStatus,
+  selectApiTokenInsStatus,
   selectError,
   selectFormStatus,
   selectIdInstance,
@@ -12,18 +17,13 @@ import {
   setFieldStatus,
   setFormStatus,
   setValue,
-} from "../../store/formSlice";
-import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
-import { setChatId } from "../../store/chatSlice";
-import axios from "axios";
-import classNames from "classnames";
+} from '../../store/formSlice';
 
-const Form = () => {
+function Form() {
   const idInstance = useSelector(selectIdInstance);
   const idInstanceStatus = useSelector(selectIdInstanceStatus);
   const apiTokenInstance = useSelector(selectApiTokenInstance);
-  const apiTokenInstanceStatus = useSelector(selectApiTokenInstanceStatus);
+  const apiTokenInstanceStatus = useSelector(selectApiTokenInsStatus);
   const tel = useSelector(selectTel);
   const telInstanceStatus = useSelector(selectTelStatus);
   const formStatus = useSelector(selectFormStatus);
@@ -32,90 +32,88 @@ const Form = () => {
 
   useEffect(() => {
     if (
-      idInstanceStatus === "filled" &&
-      apiTokenInstanceStatus === "filled" &&
-      telInstanceStatus === "filled"
+      idInstanceStatus === 'filled'
+      && apiTokenInstanceStatus === 'filled'
+      && telInstanceStatus === 'filled'
     ) {
-      dispatch(setFormStatus("filled"));
+      dispatch(setFormStatus('filled'));
     } else {
-      dispatch(setFormStatus("unfilled"));
+      dispatch(setFormStatus('unfilled'));
     }
   }, [idInstanceStatus, apiTokenInstanceStatus, telInstanceStatus, dispatch]);
 
   const changeIdInstance = (val) => {
-    dispatch(setValue([val, "idInstance"]));
+    dispatch(setValue([val, 'idInstance']));
     if (val) {
-      dispatch(setFieldStatus(["filled", "idInstance"]));
+      dispatch(setFieldStatus(['filled', 'idInstance']));
     } else {
-      dispatch(setFieldStatus(["unfilled", "idInstance"]));
+      dispatch(setFieldStatus(['unfilled', 'idInstance']));
     }
   };
 
   const changeApiTokenInstance = (val) => {
-    dispatch(setValue([val, "apiTokenInstance"]));
+    dispatch(setValue([val, 'apiTokenInstance']));
     if (val) {
-      dispatch(setFieldStatus(["filled", "apiTokenInstance"]));
+      dispatch(setFieldStatus(['filled', 'apiTokenInstance']));
     } else {
-      dispatch(setFieldStatus(["unfilled", "apiTokenInstance"]));
+      dispatch(setFieldStatus(['unfilled', 'apiTokenInstance']));
     }
   };
 
   const changeTel = (val) => {
-    dispatch(setValue([val, "tel"]));
+    dispatch(setValue([val, 'tel']));
     if (val) {
-      dispatch(setFieldStatus(["filled", "tel"]));
+      dispatch(setFieldStatus(['filled', 'tel']));
     } else {
-      dispatch(setFieldStatus(["unfilled", "tel"]));
+      dispatch(setFieldStatus(['unfilled', 'tel']));
     }
   };
 
-  const isSubmitDisabled = () => formStatus === "unfilled";
+  const isSubmitDisabled = () => formStatus === 'unfilled';
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const regExp = /\d/g;
-    const validTel = tel.match(regExp).join("");
+    const validTel = tel.match(regExp).join('');
     const chatId = `${validTel}@c.us`;
 
     const headers = {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     };
     axios
       .get(
         `https://api.green-api.com/waInstance${idInstance}/getStateInstance/${apiTokenInstance}`,
-        { headers }
+        { headers },
       )
       .then((res) => console.log(res.data))
-      .then(() =>
-        axios.post(
-          `https://api.green-api.com/waInstance${idInstance}/checkWhatsapp/${apiTokenInstance}`,
-          JSON.stringify({ phoneNumber: validTel }),
-          { headers }
-        )
-      )
+      .then(() => axios.post(
+        `https://api.green-api.com/waInstance${idInstance}/checkWhatsapp/${apiTokenInstance}`,
+        JSON.stringify({ phoneNumber: validTel }),
+        { headers },
+      ))
       .then((res) => {
         if (res.data.existsWhatsapp) {
           console.log(res.data);
         } else {
-          throw new Error("This number is not registered in WhatsApp");
+          throw new Error('This number is not registered in WhatsApp');
         }
       })
       .then(() => {
         dispatch(setChatId(chatId));
-        dispatch(setFormStatus("created"));
+        dispatch(setFormStatus('created'));
       })
-      .catch((e) => {
-        console.log(e);
-        if (e.response && e.response.status === 400) {
-          dispatch(setError(e.response.data.message));
-        } else if (e.response && e.response.status === 401) {
-          dispatch(setError("The user is unauthorized"));
-        } else if (e.response && e.response.status === 466) {
-          dispatch(setError("Limit exhausted"));
-        } else if (e.response && e.response.status === 429) {
-          dispatch(setError("Too Many Requests"));
+      .catch((error) => {
+        console.log(error);
+        if (error.response && e.response.status === 400) {
+          dispatch(setError(error.response.data.message));
+        } else if (error.response && error.response.status === 401) {
+          dispatch(setError('The user is unauthorized'));
+        } else if (error.response && error.response.status === 466) {
+          dispatch(setError('Limit exhausted'));
+        } else if (error.response && error.response.status === 429) {
+          dispatch(setError('Too Many Requests'));
         } else {
-          dispatch(setError(e.message));
+          dispatch(setError(error.message));
         }
       });
   };
@@ -124,7 +122,7 @@ const Form = () => {
     <form
       onSubmit={handleSubmit}
       className={classNames({
-        hide: formStatus === "created",
+        hide: formStatus === 'created',
       })}
     >
       <fieldset className="border px-4 pt-1 pb-4">
@@ -187,6 +185,6 @@ const Form = () => {
       </fieldset>
     </form>
   );
-};
+}
 
 export default Form;

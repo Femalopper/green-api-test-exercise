@@ -1,18 +1,17 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { current } from "@reduxjs/toolkit";
+import { createSlice, current } from '@reduxjs/toolkit';
 
 const initialState = {
   chatState: {
-    chatId: "",
-    currentMessage: "",
+    chatId: '',
+    currentMessage: '',
     sentMessages: [],
     receivedMessages: [],
-    status: "unactive",
+    status: 'unactive',
   },
 };
 
 export const chatSlice = createSlice({
-  name: "chat",
+  name: 'chat',
   initialState,
   reducers: {
     setChatId: (state, data) => {
@@ -36,20 +35,17 @@ export const chatSlice = createSlice({
     },
     setChatStatus: (state, data) => {
       state.chatState.status = data.payload;
-    }
+    },
   },
 });
 
-export const { setChatId, setCurrentMessage, setSentMessages, setReceivedMessages, setReceiptIds, setChatStatus } =
-  chatSlice.actions;
+export const {
+  setChatId, setCurrentMessage, setSentMessages, setReceivedMessages, setReceiptIds, setChatStatus,
+} = chatSlice.actions;
 export const selectChatId = (state) => state.chat.chatState.chatId;
-export const selectCurrentMessage = (state) =>
-  state.chat.chatState.currentMessage;
-export const selectSentMessages = (state) =>
-  state.chat.chatState.sentMessages;
-  export const selectReceivedMessages = (state) =>
-  state.chat.chatState.receivedMessages;
-  export const selectChatStatus = (state) =>
-  state.chat.chatState.status;
+export const selectCurrentMessage = (state) => state.chat.chatState.currentMessage;
+export const selectSentMessages = (state) => state.chat.chatState.sentMessages;
+export const selectReceivedMessages = (state) => state.chat.chatState.receivedMessages;
+export const selectChatStatus = (state) => state.chat.chatState.status;
 
 export default chatSlice.reducer;
