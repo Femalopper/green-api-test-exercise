@@ -211,6 +211,7 @@ function Chat() {
             id="message"
             placeholder="Введите Сообщение"
             autoFocus
+            autoComplete="off"
           />
         </div>
       </div>

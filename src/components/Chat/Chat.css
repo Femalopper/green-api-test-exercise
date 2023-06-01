@@ -50,7 +50,7 @@
   width: fit-content;
   min-width: 150px;
   padding: 34px;
-  word-break: break-all;
+  white-space: normal;
 }
 
 .sent {

@@ -2,7 +2,7 @@
 
 ## Description
 
-Demonstration of WhatsApp chatbot using GREEN-API (https://green-api.com/) service. 
+Demonstration of WhatsApp chatbot using GREEN-API (https://green-api.com/) service.
 
 ## Setup
 
@@ -20,3 +20,8 @@ Demonstration of WhatsApp chatbot using GREEN-API (https://green-api.com/) servi
    cd green-api-test-exercise
 
    npm start
+```
+
+## Chat animation
+
+![Chat](https://github.com/Femalopper/raw/blob/main/images/chatbot-demo.gif)
