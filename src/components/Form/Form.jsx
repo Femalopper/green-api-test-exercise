@@ -139,6 +139,7 @@ function Form() {
             placeholder="Введите idInstance"
             value={idInstance}
             onChange={(e) => changeIdInstance(e.target.value)}
+            autoComplete="off"
             required
           />
         </div>
@@ -153,6 +154,7 @@ function Form() {
             placeholder="Введите apiTokenInstance"
             value={apiTokenInstance}
             onChange={(e) => changeApiTokenInstance(e.target.value)}
+            autoComplete="off"
             required
           />
         </div>
@@ -167,6 +169,7 @@ function Form() {
             placeholder="Введите телефон"
             value={tel}
             onChange={(e) => changeTel(e.target.value)}
+            autoComplete="off"
             required
           />
         </div>
