@@ -38,11 +38,9 @@ const Chat = () => {
     if (lastMes.current) {
       console.log(lastMes.current.offsetHeight);
       chatBody.current.scrollTop =
-      chatBody.current.scrollHeight + lastMes.current.offsetHeight;
+        chatBody.current.scrollHeight + lastMes.current.offsetHeight;
     }
   };
-
-  console.log(chatStatus);
 
   useEffect(() => {
     const runLoop = () => {
@@ -78,7 +76,11 @@ const Chat = () => {
               { headers },
               response.data.body.receiptId
             );
-            dispatch(setReceivedMessages(response.data.body.messageData.textMessageData.textMessage))
+            dispatch(
+              setReceivedMessages(
+                response.data.body.messageData.textMessageData.textMessage
+              )
+            );
           } else if (
             webhookBody &&
             webhookBody.typeWebhook === "outgoingAPIMessageReceived"
@@ -89,6 +91,21 @@ const Chat = () => {
               { headers },
               response.data.body.receiptId
             );
+          } else if (
+            webhookBody &&
+            webhookBody.typeWebhook === "stateInstanceChanged"
+          ) {
+            console.log("stateInstanceChanged");
+            console.log(`stateInstance=${webhookBody.stateInstance}`);
+          } else if (
+            webhookBody &&
+            webhookBody.typeWebhook === "outgoingMessageStatus"
+          ) {
+            console.log("outgoingMessageStatus");
+            console.log(`status=${webhookBody.status}`);
+          } else if (webhookBody && webhookBody.typeWebhook === "deviceInfo") {
+            console.log("deviceInfo");
+            console.log(`status=${webhookBody.deviceData}`);
           }
           recF();
         };
@@ -111,7 +128,7 @@ const Chat = () => {
       dispatch(setReceivedMessages(null));
     } else if (sentMessages.length < receivedMessages.length) {
       console.log(sentMessages, "k");
-      console.log(receivedMessages, 'l');
+      console.log(receivedMessages, "l");
       dispatch(setSentMessages(null));
     }
   }, [sentMessages, receivedMessages]);
@@ -163,9 +180,7 @@ const Chat = () => {
           <div
             className="w-wat-chat received"
             key={uniqueId()}
-            ref={
-              counter === sentMessages.length - 1 ? lastMes : null
-            }
+            ref={counter === sentMessages.length - 1 ? lastMes : null}
           >
             <div>
               <p>{receivedMessages[counter]}</p>

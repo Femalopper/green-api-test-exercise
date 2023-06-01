@@ -112,6 +112,8 @@ const Form = () => {
           dispatch(setError("The user is unauthorized"));
         } else if (e.response && e.response.status === 466) {
           dispatch(setError("Limit exhausted"));
+        } else if (e.response && e.response.status === 429) {
+          dispatch(setError("Too Many Requests"));
         } else {
           dispatch(setError(e.message));
         }
