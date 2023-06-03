@@ -6,11 +6,9 @@ import axios from 'axios';
 import { uniqueId } from 'lodash';
 import {
   selectChatId,
-  selectChatStatus,
   selectCurrentMessage,
   selectReceivedMessages,
   selectSentMessages,
-  setChatStatus,
   setCurrentMessage,
   setReceivedMessages,
   setSentMessages,
@@ -29,7 +27,6 @@ function Chat() {
   const message = useSelector(selectCurrentMessage);
   const sentMessages = useSelector(selectSentMessages);
   const receivedMessages = useSelector(selectReceivedMessages);
-  const chatStatus = useSelector(selectChatStatus);
   const chatBody = useRef();
   const lastMes = useRef();
   const dispatch = useDispatch();
@@ -41,88 +38,85 @@ function Chat() {
   };
 
   useEffect(() => {
-    const runLoop = () => {
-      const headers = {
-        'Content-Type': 'application/json',
-      };
+    if (formStatus === 'created') {
+      let response;
+      const getNotifications = async () => {
+        const headers = {
+          'Content-Type': 'application/json',
+        };
+        response = await axios.get(
+          `https://api.green-api.com/waInstance${idInstance}/receiveNotification/${apiTokenInstance}`,
+          { headers },
+        );
+        let webhookBody;
 
-      try {
-        let response;
-        const recF = async () => {
-          response = await axios.get(
-            `https://api.green-api.com/waInstance${idInstance}/receiveNotification/${apiTokenInstance}`,
+        if (response.data) {
+          webhookBody = response.data.body;
+        }
+
+        if (
+          webhookBody
+          && webhookBody.typeWebhook === 'incomingMessageReceived'
+        ) {
+          const { receiptId } = response.data;
+          await axios.delete(
+            `https://api.green-api.com/waInstance${idInstance}/deleteNotification/${apiTokenInstance}/${receiptId}`,
             { headers },
+            response.data.body.receiptId,
           );
-
-          let webhookBody;
-
-          if (response.data) {
-            webhookBody = response.data.body;
-          }
-
-          if (
-            webhookBody
-            && webhookBody.typeWebhook === 'incomingMessageReceived'
-          ) {
-            const { receiptId } = response.data;
-            await axios.delete(
-              `https://api.green-api.com/waInstance${idInstance}/deleteNotification/${apiTokenInstance}/${receiptId}`,
-              { headers },
-              response.data.body.receiptId,
-            );
+          if (response.data.body.senderData.chatId === chatId) {
             dispatch(
               setReceivedMessages(
                 response.data.body.messageData.textMessageData.textMessage,
               ),
             );
-          } else if (
-            webhookBody
-            && webhookBody.typeWebhook === 'outgoingAPIMessageReceived'
-          ) {
-            const { receiptId } = response.data;
-            await axios.delete(
-              `https://api.green-api.com/waInstance${idInstance}/deleteNotification/${apiTokenInstance}/${receiptId}`,
-              { headers },
-              response.data.body.receiptId,
-            );
-          } else if (
-            webhookBody
-            && webhookBody.typeWebhook === 'stateInstanceChanged'
-          ) {
-            console.log('stateInstanceChanged');
-            console.log(`stateInstance=${webhookBody.stateInstance}`);
-          } else if (
-            webhookBody
-            && webhookBody.typeWebhook === 'outgoingMessageStatus'
-          ) {
-            console.log('outgoingMessageStatus');
-            console.log(`status=${webhookBody.status}`);
-          } else if (webhookBody && webhookBody.typeWebhook === 'deviceInfo') {
-            console.log('deviceInfo');
-            console.log(`status=${webhookBody.deviceData}`);
           }
-          recF();
-        };
-        recF();
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    if (chatStatus === 'active') {
-      runLoop();
+        } else if (webhookBody && webhookBody.typeWebhook === 'outgoingAPIMessageReceived') {
+          const { receiptId } = response.data;
+          await axios.delete(
+            `https://api.green-api.com/waInstance${idInstance}/deleteNotification/${apiTokenInstance}/${receiptId}`,
+            { headers },
+            response.data.body.receiptId,
+          );
+          dispatch(
+            setSentMessages(
+              response.data.body.messageData.extendedTextMessageData.text,
+            ),
+          );
+        } else if (webhookBody && webhookBody.typeWebhook === 'outgoingMessageReceived') {
+          const { receiptId } = response.data;
+          await axios.delete(
+            `https://api.green-api.com/waInstance${idInstance}/deleteNotification/${apiTokenInstance}/${receiptId}`,
+            { headers },
+            response.data.body.receiptId,
+          );
+        } else if (
+          webhookBody
+          && webhookBody.typeWebhook === 'stateInstanceChanged'
+        ) {
+          console.log('stateInstanceChanged');
+          console.log(`stateInstance=${webhookBody.stateInstance}`);
+        } else if (
+          webhookBody
+          && webhookBody.typeWebhook === 'outgoingMessageStatus'
+        ) {
+          console.log('outgoingMessageStatus');
+          console.log(`status=${webhookBody.status}`);
+        } else if (webhookBody && webhookBody.typeWebhook === 'deviceInfo') {
+          console.log('deviceInfo');
+          console.log(`status=${webhookBody.deviceData}`);
+        }
+        getNotifications();
+      };
+      getNotifications();
     }
-  }, [chatStatus]);
+  }, [formStatus]);
 
   useEffect(() => {
     scrollToBottom();
-    if (sentMessages.length === 1) {
-      dispatch(setChatStatus('active'));
-    }
     if (sentMessages.length > receivedMessages.length) {
       dispatch(setReceivedMessages(null));
     } else if (sentMessages.length < receivedMessages.length) {
-      console.log(sentMessages, 'k');
-      console.log(receivedMessages, 'l');
       dispatch(setSentMessages(null));
     }
   }, [sentMessages, receivedMessages]);
@@ -133,17 +127,20 @@ function Chat() {
       'Content-Type': 'application/json',
     };
 
-    try {
-      await axios.post(
-        `https://api.green-api.com/waInstance${idInstance}/sendMessage/${apiTokenInstance}`,
-        JSON.stringify({ chatId, message }, null, 4),
-        { headers },
-      );
-      dispatch(setSentMessages(message));
-      dispatch(setCurrentMessage(''));
-    } catch (e) {
-      console.log(e);
-    }
+    const postMessage = async () => {
+      try {
+        await axios.post(
+          `https://api.green-api.com/waInstance${idInstance}/sendMessage/${apiTokenInstance}`,
+          JSON.stringify({ chatId, message }, null, 4),
+          { headers },
+        );
+        dispatch(setCurrentMessage(''));
+      } catch (e) {
+        console.log(e);
+        setTimeout(() => postMessage(), 5000);
+      }
+    };
+    postMessage();
   };
 
   const changeHandler = (val) => {

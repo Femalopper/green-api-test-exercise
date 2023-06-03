@@ -110,8 +110,6 @@ function Form() {
           dispatch(setError('The user is unauthorized'));
         } else if (error.response && error.response.status === 466) {
           dispatch(setError('Limit exhausted'));
-        } else if (error.response && error.response.status === 429) {
-          dispatch(setError('Too Many Requests'));
         } else {
           dispatch(setError(error.message));
         }

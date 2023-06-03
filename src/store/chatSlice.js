@@ -6,7 +6,6 @@ const initialState = {
     currentMessage: '',
     sentMessages: [],
     receivedMessages: [],
-    status: 'unactive',
   },
 };
 
@@ -33,19 +32,15 @@ export const chatSlice = createSlice({
         data.payload,
       ];
     },
-    setChatStatus: (state, data) => {
-      state.chatState.status = data.payload;
-    },
   },
 });
 
 export const {
-  setChatId, setCurrentMessage, setSentMessages, setReceivedMessages, setReceiptIds, setChatStatus,
+  setChatId, setCurrentMessage, setSentMessages, setReceivedMessages, setReceiptIds,
 } = chatSlice.actions;
 export const selectChatId = (state) => state.chat.chatState.chatId;
 export const selectCurrentMessage = (state) => state.chat.chatState.currentMessage;
 export const selectSentMessages = (state) => state.chat.chatState.sentMessages;
 export const selectReceivedMessages = (state) => state.chat.chatState.receivedMessages;
-export const selectChatStatus = (state) => state.chat.chatState.status;
 
 export default chatSlice.reducer;
