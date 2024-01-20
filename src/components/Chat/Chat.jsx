@@ -83,7 +83,7 @@ function Chat() {
               response.data.body.messageData.extendedTextMessageData.text,
             ),
           );
-        } else {
+        } else if (response.data) {
           const { receiptId } = response.data;
           await axios.delete(
             `https://api.green-api.com/waInstance${idInstance}/deleteNotification/${apiTokenInstance}/${receiptId}`,
