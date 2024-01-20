@@ -83,28 +83,13 @@ function Chat() {
               response.data.body.messageData.extendedTextMessageData.text,
             ),
           );
-        } else if (webhookBody && webhookBody.typeWebhook === 'outgoingMessageReceived') {
+        } else {
           const { receiptId } = response.data;
           await axios.delete(
             `https://api.green-api.com/waInstance${idInstance}/deleteNotification/${apiTokenInstance}/${receiptId}`,
             { headers },
             response.data.body.receiptId,
           );
-        } else if (
-          webhookBody
-          && webhookBody.typeWebhook === 'stateInstanceChanged'
-        ) {
-          console.log('stateInstanceChanged');
-          console.log(`stateInstance=${webhookBody.stateInstance}`);
-        } else if (
-          webhookBody
-          && webhookBody.typeWebhook === 'outgoingMessageStatus'
-        ) {
-          console.log('outgoingMessageStatus');
-          console.log(`status=${webhookBody.status}`);
-        } else if (webhookBody && webhookBody.typeWebhook === 'deviceInfo') {
-          console.log('deviceInfo');
-          console.log(`status=${webhookBody.deviceData}`);
         }
         getNotifications();
       };
