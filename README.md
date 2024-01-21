@@ -2,7 +2,7 @@
 
 ## Description
 
-Demonstration of WhatsApp chatbot using GREEN-API (https://green-api.com/) service.
+Realization of WhatsApp chat using GREEN-API (https://green-api.com/) service.
 
 ## Setup
 
@@ -24,7 +24,7 @@ Demonstration of WhatsApp chatbot using GREEN-API (https://green-api.com/) servi
 
 ## Instruction
 
-Before using chatbot, you should:
+Before using chat, you should:
 
 :heavy_check_mark: Register on https://green-api.com/ and create account in GREEN-API service.
 
